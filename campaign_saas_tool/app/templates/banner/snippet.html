@@ -1,0 +1,92 @@
+{% extends "layouts/base.html" %}
+{% block content %}
+    <h2>Embed Snippet for Banner: "{{ campaign_name }}"</h2>
+
+    {% if position_type == 'inline_replace' %}
+    <div class="alert alert-info">
+        <strong>For "Inline (Replaces a div)" banner type:</strong><br>
+        1. First, place the following HTML placeholder div where you want the banner to appear on your page:<br>
+        <textarea readonly style="width: 100%; font-family: monospace; white-space: pre; margin-top:5px; margin-bottom:10px;" rows="1">{{ placeholder_html }}</textarea>
+        2. Then, include the JavaScript snippet below, preferably just before the closing <code>&lt;/body&gt;</code> tag.
+    </div>
+    {% else %}
+    <p>Copy and paste the JavaScript snippet below into the HTML of your website, preferably just before the closing <code>&lt;/body&gt;</code> tag.</p>
+    {% endif %}
+
+    <h4>JavaScript Snippet:</h4>
+    <textarea id="snippet-text-area" readonly style="width: 100%; height: 300px; font-family: monospace; white-space: pre; border: 1px solid #ccc; padding: 10px; box-sizing: border-box;">{{ snippet_code }}</textarea>
+    <button onclick="copySnippet()" class="btn btn-sm btn-info mt-2 mb-3">Copy Snippet</button>
+    <br>
+    <a href="{{ url_for('banner.list_banners') }}" class="btn btn-secondary">Back to Banners</a>
+    <hr>
+
+    <h3>Live Preview (Conceptual)</h3>
+    <p><small>This preview attempts to simulate the Banner. Actual appearance depends on the target site's CSS and JS environment.</small></p>
+    <div id="preview-frame-container" style="border: 2px solid #28a745; margin-top:10px; min-height: 300px; resize: vertical; overflow: auto; padding: 15px; background-color: #e9f5ee;">
+        <h4>Simulated Website Content Area</h4>
+        <p>This is some placeholder content for the website.</p>
+        {% if position_type == 'inline_replace' %}
+            <p>For 'Inline' banners, the placeholder div below should be replaced by the banner:</p>
+            <div id="{{ target_div_id }}" style="border: 1px dashed #aaa; padding:10px; min-height:50px; text-align:center; background-color:#f9f9f9;">
+                <i>Original content of DIV with ID: {{ target_div_id }} (will be replaced by banner)</i>
+            </div>
+        {% else %}
+            <p>For 'Fixed' position banners, it should appear at the specified corner of this green-bordered box.</p>
+        {% endif %}
+        <p>More simulated content to fill space...</p>
+        <div id="banner-preview-mount-point"></div> {# General mount for fixed, or specific for inline #}
+    </div>
+
+    <script type="text/javascript">
+        function copySnippet() {
+            var textArea = document.getElementById("snippet-text-area");
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                alert('Snippet copied to clipboard!');
+            } catch (err) {
+                alert('Failed to copy snippet. Please copy manually.');
+            }
+        }
+
+        (function() {
+            var mountPoint = document.getElementById('banner-preview-mount-point'); // Used for fixed previews
+            var snippetCode = document.getElementById("snippet-text-area").value;
+
+            var iifeMatch = snippetCode.match(/\((function\s*\([^)]*\)\s*\{[\s\S]*?\})\s*\)\s*\(\s*\);/);
+            if (!iifeMatch || !iifeMatch[1]) {
+                console.error("Could not extract IIFE from snippet for preview.");
+                if(mountPoint) mountPoint.innerHTML = "<p style='color:red;'>Error: Could not parse snippet for preview.</p>";
+                else document.getElementById('preview-frame-container').innerHTML += "<p style='color:red;'>Error: Could not parse snippet for preview (no mount point).</p>";
+                return;
+            }
+            var iifeContent = iifeMatch[1];
+
+            var positionType = "{{ position_type }}"; // Get this from template context
+            var targetDivId = "{{ target_div_id }}"; // Get this from template context
+
+            var modifiedIIFE = iifeContent;
+            if (positionType !== "inline_replace") {
+                 // For fixed position banners, make them append relative to the preview box if possible, or ensure they are visible.
+                 // The current snippet appends to document.body. For preview, this might be okay if styled to be contained or if an iframe was used.
+                 // Let's assume fixed banners in preview will appear relative to the main page, but should be visible.
+                 // No specific modification needed for fixed if they just append to body, they'll appear over the preview box.
+            } else {
+                // For inline_replace, the script already targets document.getElementById(targetDivId).
+                // Ensure the targetDivId exists within our preview-frame-container.
+                // The target div is already part of the preview-frame-container HTML.
+            }
+
+            var scriptToRun = '(' + modifiedIIFE + ')();';
+
+            try {
+                var func = new Function(scriptToRun); // No specific params needed if script is self-contained
+                func();
+            } catch (e) {
+                console.error("Error executing banner snippet for preview:", e);
+                var errorDest = mountPoint || document.getElementById('preview-frame-container');
+                errorDest.innerHTML += "<p style='color:red;'>Error previewing banner snippet: " + e.message + ". Check console.</p>";
+            }
+        })();
+    </script>
+{% endblock %}

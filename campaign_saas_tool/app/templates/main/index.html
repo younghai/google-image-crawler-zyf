@@ -1,0 +1,8 @@
+{% extends "layouts/base.html" %}
+{% block content %}
+    <h1>Welcome to the Campaign SaaS Tool!</h1>
+    <p>This is the homepage.</p>
+    {% if not current_user.is_authenticated %}
+    <p>Please <a href="{{ url_for('auth.login') }}">log in</a> or <a href="{{ url_for('auth.register') }}">register</a> to continue.</p>
+    {% endif %}
+{% endblock %}

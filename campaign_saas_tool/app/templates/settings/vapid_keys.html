@@ -1,0 +1,55 @@
+{% extends "layouts/base.html" %}
+{% block content %}
+    <h2>Manage VAPID Keys for Web Push Notifications</h2>
+    <p>VAPID keys are required to send web push notifications. You can generate a new pair or enter existing ones.</p>
+    <p>Your VAPID Public Key will be needed for your website's client-side JavaScript to subscribe users.</p>
+
+    <form method="POST" action="">
+        {{ form.hidden_tag() }}
+        <fieldset>
+            <legend>VAPID Configuration</legend>
+            <div class="form-group">
+                {{ form.claims_email.label }}<br>
+                {{ form.claims_email(size=40) }}
+                {% if form.claims_email.errors %}
+                    <div class="error">{% for error in form.claims_email.errors %}<span>{{ error }}</span>{% endfor %}</div>
+                {% endif %}
+                <small>A contact email address (e.g., mailto:admin@example.com) for the push service to reach you.</small>
+            </div>
+            <hr>
+            <div class="form-group">
+                {{ form.generate_new() }}
+                {{ form.generate_new.label }}
+                <small>Check this to generate a new set of VAPID keys. This will overwrite any existing keys.</small>
+            </div>
+            <hr>
+            <p><strong>Or, enter your existing keys:</strong></p>
+            <div class="form-group">
+                {{ form.public_key.label }}<br>
+                {{ form.public_key(size=80) }}
+                {% if form.public_key.errors %}
+                    <div class="error">{% for error in form.public_key.errors %}<span>{{ error }}</span>{% endfor %}</div>
+                {% endif %}
+            </div>
+            <div class="form-group">
+                {{ form.private_key.label }}<br>
+                {{ form.private_key(size=80) }}
+                {% if form.private_key.errors %}
+                    <div class="error">{% for error in form.private_key.errors %}<span>{{ error }}</span>{% endfor %}</div>
+                {% endif %}
+            </div>
+        </fieldset>
+        <div class="form-group">
+            {{ form.submit(class="btn") }}
+        </div>
+    </form>
+
+    {% if current_user.vapid_public_key %}
+    <hr>
+    <h3>Current Configuration:</h3>
+    <p><strong>VAPID Public Key:</strong><br> <textarea rows="3" cols="80" readonly>{{ current_user.vapid_public_key }}</textarea></p>
+    <p><small>This public key needs to be used in your website's client-side JavaScript for push notification subscriptions.</small></p>
+    {% endif %}
+
+    <p style="margin-top: 20px;"><a href="{{ url_for('main.dashboard') }}">Back to Dashboard</a></p>
+{% endblock %}

@@ -1,0 +1,140 @@
+{% extends "layouts/base.html" %}
+{% block content %}
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">Dashboard</h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+            <div class="dropdown">
+                <button class="btn btn-primary dropdown-toggle" type="button" id="createCampaignDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Create New Campaign
+                </button>
+                <div class="dropdown-menu" aria-labelledby="createCampaignDropdown">
+                    <a class="dropdown-item" href="{{ url_for('hellobar.create_hellobar') }}">New Hello Bar</a>
+                    <a class="dropdown-item" href="{{ url_for('banner.create_banner') }}">New Banner</a>
+                    <a class="dropdown-item" href="{{ url_for('popup.create_popup') }}">New Popup</a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="{{ url_for('coupon.create_coupon') }}">New Coupon</a>
+                    {# Add other campaign types here as they are created #}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h4>My Recent Campaigns (Display Types)</h4>
+    {% if campaigns %}
+        <div class="table-responsive">
+            <table class="table table-striped table-sm">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                        <th>Created</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for campaign in campaigns %}
+                    <tr>
+                        <td>{{ campaign.name }}</td>
+                        <td>
+                            {% if campaign.campaign_type == 'hello_bar' %}Hello Bar
+                            {% elif campaign.campaign_type == 'banner' %}Banner
+                            {% elif campaign.campaign_type == 'popup' %}Popup
+                            {% else %}{{ campaign.campaign_type|title }}
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="{{ 'text-success' if campaign.is_active else 'text-danger' }}">
+                                {{ 'Active' if campaign.is_active else 'Inactive' }}
+                            </span>
+                        </td>
+                        <td>{{ campaign.created_at.strftime('%Y-%m-%d %H:%M') if campaign.created_at else 'N/A' }}</td>
+                        <td>
+                            {% set settings = json.loads(campaign.settings) if campaign.settings else {} %}
+                            {% if campaign.campaign_type == 'hello_bar' %}
+                                <a href="{{ url_for('hellobar.edit_hellobar', campaign_id=campaign.id) }}" class="btn btn-sm btn-outline-secondary">Edit</a>
+                                <a href="{{ url_for('hellobar.get_snippet', campaign_id=campaign.id) }}" class="btn btn-sm btn-outline-info" target="_blank">Snippet</a>
+                                <form action="{{ url_for('hellobar.delete_hellobar', campaign_id=campaign.id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Delete this Hello Bar?');">
+                                    <input type="submit" value="Del" class="btn btn-sm btn-outline-danger">
+                                </form>
+                            {% elif campaign.campaign_type == 'banner' %}
+                                <a href="{{ url_for('banner.edit_banner', campaign_id=campaign.id) }}" class="btn btn-sm btn-outline-secondary">Edit</a>
+                                <a href="{{ url_for('banner.get_snippet', campaign_id=campaign.id) }}" class="btn btn-sm btn-outline-info" target="_blank">Snippet</a>
+                                <form action="{{ url_for('banner.delete_banner', campaign_id=campaign.id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Delete this Banner?');">
+                                    <input type="submit" value="Del" class="btn btn-sm btn-outline-danger">
+                                </form>
+                            {% elif campaign.campaign_type == 'popup' %}
+                                <a href="{{ url_for('popup.edit_popup', campaign_id=campaign.id) }}" class="btn btn-sm btn-outline-secondary">Edit</a>
+                                <a href="{{ url_for('popup.get_snippet', campaign_id=campaign.id) }}" class="btn btn-sm btn-outline-info" target="_blank">Snippet</a>
+                                 <form action="{{ url_for('popup.delete_popup', campaign_id=campaign.id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Delete this Popup?');">
+                                    <input type="submit" value="Del" class="btn btn-sm btn-outline-danger">
+                                </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p>You haven't created any display campaigns (Hello Bars, Banners, Popups) yet.</p>
+    {% endif %}
+
+    <h4 class="mt-5">My Recent Coupons</h4>
+    {% if coupons %}
+        <div class="table-responsive">
+            <table class="table table-striped table-sm">
+                <thead>
+                    <tr>
+                        <th>Code</th>
+                        <th>Description</th>
+                        <th>Discount</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for coupon in coupons %}
+                    <tr>
+                        <td><strong>{{ coupon.code }}</strong></td>
+                        <td>{{ coupon.description|truncate(30) }}</td>
+                        <td>{{ coupon.discount_value }}{{ '%' if coupon.discount_type == 'percentage' else ' (Fixed)' }}</td>
+                        <td>
+                            <span class="{{ 'text-success' if coupon.is_active else 'text-danger' }}">
+                                {{ 'Active' if coupon.is_active else 'Inactive' }}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="{{ url_for('coupon.edit_coupon', coupon_id=coupon.id) }}" class="btn btn-sm btn-outline-secondary">Edit</a>
+                            <form action="{{ url_for('coupon.delete_coupon', coupon_id=coupon.id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Delete this Coupon?');">
+                                <input type="submit" value="Del" class="btn btn-sm btn-outline-danger">
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p>You haven't created any coupons yet.</p>
+    {% endif %}
+
+    <h4 class="mt-5">Quick Links to Manage Sections</h4>
+    <p>
+        <a href="{{ url_for('hellobar.list_hellobars') }}" class="btn btn-outline-primary mr-2 mb-2">Manage All Hello Bars</a>
+        <a href="{{ url_for('banner.list_banners') }}" class="btn btn-outline-success mr-2 mb-2">Manage All Banners</a>
+        <a href="{{ url_for('popup.list_popups') }}" class="btn btn-outline-warning mr-2 mb-2">Manage All Popups</a>
+        <a href="{{ url_for('coupon.list_coupons') }}" class="btn btn-outline-dark mr-2 mb-2">Manage All Coupons</a>
+        <a href="{{ url_for('templates_mgmt.list_templates') }}" class="btn btn-outline-secondary mr-2 mb-2">Manage Content Templates</a>
+    </p>
+    <p><a href="{{ url_for('settings.manage_vapid_keys') }}" class="btn btn-outline-info mr-2 mb-2">Configure Web Push (VAPID)</a></p>
+
+
+    {# Bootstrap JS for dropdown, ensure jQuery and Popper.js are loaded in base.html if not already #}
+    {# Assuming base.html has Bootstrap CSS and JS loaded. #}
+    <script>
+        // Basic Bootstrap dropdown initialization if not using data-attributes fully or needing JS hooks
+        // $('.dropdown-toggle').dropdown(); // Requires jQuery
+    </script>
+
+{% endblock %}

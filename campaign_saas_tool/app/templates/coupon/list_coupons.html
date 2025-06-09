@@ -1,0 +1,52 @@
+{% extends "layouts/base.html" %}
+{% block content %}
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h2>My Coupons</h2>
+        <a href="{{ url_for('coupon.create_coupon') }}" class="btn btn-primary">Create New Coupon</a>
+    </div>
+    {% if coupons %}
+        <table class="table mt-4">
+            <thead>
+                <tr>
+                    <th>Code</th>
+                    <th>Description</th>
+                    <th>Discount</th>
+                    <th>Validity</th>
+                    <th>Uses (Count/Max)</th>
+                    <th>Active</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for coupon in coupons %}
+                <tr>
+                    <td><strong>{{ coupon.code }}</strong></td>
+                    <td>{{ coupon.description|truncate(50) }}</td>
+                    <td>
+                        {{ coupon.discount_value }}
+                        {{ 'Fixed Amount' if coupon.discount_type == 'fixed_amount' else '%' }}
+                    </td>
+                    <td>
+                        {% if coupon.valid_from %}From: {{ coupon.valid_from.strftime('%Y-%m-%d') }}{% endif %}<br>
+                        {% if coupon.valid_to %}To: {{ coupon.valid_to.strftime('%Y-%m-%d') }}{% endif %}
+                        {% if not coupon.valid_from and not coupon.valid_to %}Always Valid{% endif %}
+                    </td>
+                    <td>
+                        {{ coupon.uses_count }} / {{ coupon.max_uses if coupon.max_uses is not none else 'Unlimited' }}
+                    </td>
+                    <td><span class="{{ 'text-success' if coupon.is_active else 'text-danger' }}">{{ 'Yes' if coupon.is_active else 'No' }}</span></td>
+                    <td>
+                        <a href="{{ url_for('coupon.edit_coupon', coupon_id=coupon.id) }}" class="btn btn-sm btn-outline-primary">Edit</a>
+                        <form action="{{ url_for('coupon.delete_coupon', coupon_id=coupon.id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure?');">
+                            <input type="submit" value="Delete" class="btn btn-sm btn-outline-danger">
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No Coupons created yet. <a href="{{ url_for('coupon.create_coupon') }}">Create one!</a></p>
+    {% endif %}
+    <p style="margin-top: 20px;"><a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary">Back to Dashboard</a></p>
+{% endblock %}

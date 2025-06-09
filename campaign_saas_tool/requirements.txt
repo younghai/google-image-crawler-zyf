@@ -1,0 +1,8 @@
+Flask
+Flask-SQLAlchemy
+psycopg2-binary # Or mysqlclient, or keep blank if only using SQLite for now
+werkzeug
+Flask-Login
+Flask-WTF
+email-validator
+pywebpush

@@ -1,0 +1,43 @@
+{% extends "layouts/base.html" %}
+{% block content %}
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h2>My Hello Bars</h2>
+        <a href="{{ url_for('hellobar.create_hellobar') }}" class="btn">Create New Hello Bar</a>
+    </div>
+    {% if hellobars %}
+        <table class="table" style="width:100%; margin-top:20px; border-collapse: collapse;">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Message</th>
+                    <th>Active</th>
+                    <th>Created</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for bar_campaign in hellobars %} {# Changed loop variable to avoid conflict #}
+                <tr>
+                    <td>{{ bar_campaign.name }}</td>
+                    <td>
+                        {% set settings_obj = json.loads(bar_campaign.settings) if bar_campaign.settings else {} %}
+                        {{ settings_obj.get('message_text', '') | truncate(50) }}
+                    </td>
+                    <td><span class="{{ 'text-success' if bar_campaign.is_active else 'text-danger' }}">{{ 'Yes' if bar_campaign.is_active else 'No' }}</span></td>
+                    <td>{{ bar_campaign.created_at.strftime('%Y-%m-%d %H:%M') if bar_campaign.created_at else 'N/A' }}</td>
+                    <td>
+                        <a href="{{ url_for('hellobar.edit_hellobar', campaign_id=bar_campaign.id) }}" class="btn btn-sm btn-outline-primary">Edit</a>
+                        <form action="{{ url_for('hellobar.delete_hellobar', campaign_id=bar_campaign.id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this hello bar?');">
+                            <input type="submit" value="Delete" class="btn btn-sm btn-outline-danger">
+                        </form>
+                        <a href="{{ url_for('hellobar.get_snippet', campaign_id=bar_campaign.id) }}" class="btn btn-sm btn-outline-info" target="_blank">Get Snippet</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>You haven't created any Hello Bars yet. <a href="{{ url_for('hellobar.create_hellobar') }}">Create one now!</a></p>
+    {% endif %}
+    <p style="margin-top: 20px;"><a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary">Back to Dashboard</a></p>
+{% endblock %}
