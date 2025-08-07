@@ -1,0 +1,40 @@
+{% extends "layouts/base.html" %}
+{% block content %}
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>My Content Templates</h2>
+        <a href="{{ url_for('templates_mgmt.create_template') }}" class="btn btn-primary">Create New Template</a>
+    </div>
+    {% if templates %}
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                    <th>Last Updated</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for tpl in templates %}
+                <tr>
+                    <td>{{ tpl.name }}</td>
+                    <td>{{ tpl.template_type.replace('_', ' ')|title }}</td>
+                    <td>{{ tpl.description|truncate(60) }}</td>
+                    <td>{{ tpl.updated_at.strftime('%Y-%m-%d %H:%M') if tpl.updated_at else 'N/A' }}</td>
+                    <td>
+                        <a href="{{ url_for('templates_mgmt.edit_template', template_id=tpl.id) }}" class="btn btn-sm btn-outline-primary">Edit</a>
+                        <form action="{{ url_for('templates_mgmt.delete_template', template_id=tpl.id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Delete this template? This cannot be undone.');">
+                            <input type="submit" value="Delete" class="btn btn-sm btn-outline-danger">
+                        </form>
+                        {# Maybe a preview button in future #}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>You haven't created any content templates yet. <a href="{{ url_for('templates_mgmt.create_template') }}">Create one now!</a></p>
+    {% endif %}
+    <p style="margin-top: 20px;"><a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary">Back to Dashboard</a></p>
+{% endblock %}

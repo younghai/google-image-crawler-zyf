@@ -1,0 +1,51 @@
+{% extends "layouts/base.html" %}
+{% block content %}
+    <h2>Embed Snippet for Popup: "{{ campaign_name }}"</h2>
+    <p>Copy and paste the JavaScript snippet below into the HTML of your website, preferably just before the closing <code>&lt;/body&gt;</code> tag.</p>
+
+    <textarea id="snippet-text-area" readonly style="width: 100%; height: 400px; font-family: monospace; white-space: pre; border: 1px solid #ccc; padding: 10px; box-sizing: border-box;">{{ snippet_code }}</textarea>
+    <button onclick="copySnippet()" class="btn btn-sm btn-info mt-2 mb-3">Copy Snippet</button>
+    <br>
+    <a href="{{ url_for('popup.list_popups') }}" class="btn btn-secondary">Back to Popups</a>
+    <hr>
+
+    <h3>Live Preview (Conceptual)</h3>
+    <p><small>This preview attempts to simulate the Popup. It will trigger based on its settings (e.g., 'On Page Load' with delay). Refresh page to re-trigger if 'Once Per Session' and already shown.</small></p>
+    <button id="clearSessionStorageButton" class="btn btn-sm btn-warning mb-2">Clear Session Storage for this Popup (to re-test)</button>
+    <div id="preview-frame-container" style="border: 2px solid #fd7e14; margin-top:10px; min-height: 300px; resize: vertical; overflow: auto; padding: 15px; background-color: #fff3e0; position:relative;">
+        <h4>Simulated Website Content Area</h4>
+        <p>This is some placeholder content for the website. The popup should appear over this content.</p>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+    </div>
+
+    {# Include the snippet itself for the preview #}
+    {{ snippet_code|safe }}
+
+    <script type="text/javascript">
+        function copySnippet() {
+            var textArea = document.getElementById("snippet-text-area");
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                alert('Snippet copied to clipboard!');
+            } catch (err) {
+                alert('Failed to copy snippet. Please copy manually.');
+            }
+        }
+
+        var clearButton = document.getElementById('clearSessionStorageButton');
+        if(clearButton){
+            clearButton.onclick = function(){
+                var configName = 'CST_POPUP_CONFIG_{{ campaign.id if campaign else "test" }}'; // Get campaign ID for key
+                var campId = "{{ campaign.id if campaign else 'test' }}";
+                var key = "cstPopupShown_" + campId;
+                try {
+                    sessionStorage.removeItem(key);
+                    alert('Session storage for key "' + key + '" cleared. Refresh to test popup frequency again.');
+                } catch(e) {
+                    alert('Could not clear session storage.');
+                }
+            };
+        }
+    </script>
+{% endblock %}

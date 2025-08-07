@@ -1,0 +1,105 @@
+{% extends "layouts/base.html" %}
+{% block content %}
+    <h3>{{ legend }}</h3>
+    <form method="POST" action="" novalidate id="popupForm">
+        {{ form.hidden_tag() }}
+        <fieldset class="form-group">
+            <legend class="border-bottom mb-4">Popup Configuration</legend>
+            <div class="form-group">
+                {{ form.name.label(class="form-control-label") }}
+                {{ form.name(class="form-control form-control-lg") }}
+                {% if form.name.errors %}<div class="invalid-feedback d-block">{% for error in form.name.errors %}<span>{{ error }}</span>{% endfor %}</div>{% endif %}
+            </div>
+
+            <div class="form-group">
+                {{ form.popup_type.label(class="form-control-label") }}
+                {{ form.popup_type(class="form-control", id="popupTypeSelect") }}
+            </div>
+
+            <div id="titleSection" class="form-group">
+                {{ form.title.label(class="form-control-label") }}
+                {{ form.title(class="form-control") }}
+            </div>
+
+            <div id="customHtmlSection" class="form-group content-section">
+                {{ form.custom_html_content.label(class="form-control-label") }}
+                {{ form.custom_html_content(class="form-control", rows=8) }}
+                {% if form.custom_html_content.errors %}<div class="invalid-feedback d-block">{% for error in form.custom_html_content.errors %}<span>{{ error }}</span>{% endfor %}</div>{% endif %}
+            </div>
+
+            <div id="youtubeVideoSection" class="form-group content-section" style="display: none;">
+                {{ form.youtube_video_id.label(class="form-control-label") }}
+                {{ form.youtube_video_id(class="form-control", placeholder="e.g., dQw4w9WgXcQ") }}
+                <small class="form-text text-muted">{{ form.youtube_video_id.description }}</small>
+                {% if form.youtube_video_id.errors %}<div class="invalid-feedback d-block">{% for error in form.youtube_video_id.errors %}<span>{{ error }}</span>{% endfor %}</div>{% endif %}
+            </div>
+
+            <h5 class="mt-4 border-bottom">Trigger & Display</h5>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        {{ form.trigger_type.label(class="form-control-label") }}
+                        {{ form.trigger_type(class="form-control") }}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        {{ form.trigger_delay.label(class="form-control-label") }}
+                        {{ form.trigger_delay(class="form-control", type="number", min="0") }}
+                        {% if form.trigger_delay.errors %}<div class="invalid-feedback d-block">{% for error in form.trigger_delay.errors %}<span>{{ error }}</span>{% endfor %}</div>{% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                {{ form.display_frequency.label(class="form-control-label") }}
+                {{ form.display_frequency(class="form-control") }}
+            </div>
+
+            <h5 class="mt-4 border-bottom">Appearance</h5>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        {{ form.width.label(class="form-control-label") }}
+                        {{ form.width(class="form-control") }}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        {{ form.overlay_color.label(class="form-control-label") }}
+                        {{ form.overlay_color(class="form-control") }}
+                    </div>
+                </div>
+            </div>
+             <div class="form-check mt-3">
+                {{ form.is_active(class="form-check-input") }}
+                {{ form.is_active.label(class="form-check-label") }}
+            </div>
+        </fieldset>
+        <div class="form-group mt-4">
+            {{ form.submit(class="btn btn-primary") }}
+            <a href="{{ url_for('popup.list_popups') }}" class="btn btn-secondary ml-2">Cancel</a>
+        </div>
+    </form>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var popupTypeSelect = document.getElementById('popupTypeSelect');
+            var customHtmlSection = document.getElementById('customHtmlSection');
+            var youtubeVideoSection = document.getElementById('youtubeVideoSection');
+
+            function toggleContentSections() {
+                if (popupTypeSelect.value === 'custom_html') {
+                    customHtmlSection.style.display = 'block';
+                    youtubeVideoSection.style.display = 'none';
+                } else if (popupTypeSelect.value === 'youtube_video') {
+                    customHtmlSection.style.display = 'none';
+                    youtubeVideoSection.style.display = 'block';
+                } else {
+                    customHtmlSection.style.display = 'none';
+                    youtubeVideoSection.style.display = 'none';
+                }
+            }
+            popupTypeSelect.addEventListener('change', toggleContentSections);
+            toggleContentSections(); // Initial call
+        });
+    </script>
+{% endblock %}

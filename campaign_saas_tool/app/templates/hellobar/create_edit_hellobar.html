@@ -1,0 +1,67 @@
+{% extends "layouts/base.html" %}
+{% block content %}
+    <h3>{{ legend }}</h3>
+    <form method="POST" action="" novalidate>
+        {{ form.hidden_tag() }}
+        <fieldset class="form-group">
+            <legend class="border-bottom mb-4">Hello Bar Configuration</legend>
+            <div class="form-group">
+                {{ form.name.label(class="form-control-label") }}
+                {{ form.name(class="form-control form-control-lg") }}
+                {% if form.name.errors %}<div class="invalid-feedback d-block">{% for error in form.name.errors %}<span>{{ error }}</span>{% endfor %}</div>{% endif %}
+            </div>
+            <div class="form-group">
+                {{ form.message_text.label(class="form-control-label") }}
+                {{ form.message_text(class="form-control") }}
+                {% if form.message_text.errors %}<div class="invalid-feedback d-block">{% for error in form.message_text.errors %}<span>{{ error }}</span>{% endfor %}</div>{% endif %}
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        {{ form.cta_text.label(class="form-control-label") }}
+                        {{ form.cta_text(class="form-control") }}
+                        {% if form.cta_text.errors %}<div class="invalid-feedback d-block">{% for error in form.cta_text.errors %}<span>{{ error }}</span>{% endfor %}</div>{% endif %}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        {{ form.cta_link.label(class="form-control-label") }}
+                        {{ form.cta_link(class="form-control") }}
+                        {% if form.cta_link.errors %}<div class="invalid-feedback d-block">{% for error in form.cta_link.errors %}<span>{{ error }}</span>{% endfor %}</div>{% endif %}
+                    </div>
+                </div>
+            </div>
+             <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        {{ form.background_color.label(class="form-control-label") }}
+                        {{ form.background_color(class="form-control") }}
+                        {% if form.background_color.errors %}<div class="invalid-feedback d-block">{% for error in form.background_color.errors %}<span>{{ error }}</span>{% endfor %}</div>{% endif %}
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        {{ form.text_color.label(class="form-control-label") }}
+                        {{ form.text_color(class="form-control") }}
+                        {% if form.text_color.errors %}<div class="invalid-feedback d-block">{% for error in form.text_color.errors %}<span>{{ error }}</span>{% endfor %}</div>{% endif %}
+                    </div>
+                </div>
+                <div class="col-md-4">
+                     <div class="form-group">
+                        {{ form.position.label(class="form-control-label") }}
+                        {{ form.position(class="form-control") }}
+                        {% if form.position.errors %}<div class="invalid-feedback d-block">{% for error in form.position.errors %}<span>{{ error }}</span>{% endfor %}</div>{% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="form-check">
+                {{ form.is_active(class="form-check-input") }}
+                {{ form.is_active.label(class="form-check-label") }}
+            </div>
+        </fieldset>
+        <div class="form-group mt-4">
+            {{ form.submit(class="btn btn-primary") }}
+            <a href="{{ url_for('hellobar.list_hellobars') }}" class="btn btn-secondary ml-2">Cancel</a>
+        </div>
+    </form>
+{% endblock %}

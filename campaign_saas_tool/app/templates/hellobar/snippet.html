@@ -1,0 +1,80 @@
+{% extends "layouts/base.html" %}
+{% block content %}
+    <h2>Embed Snippet for "{{ campaign_name }}"</h2>
+    <p>Copy and paste this snippet into the HTML of your website, preferably just before the closing <code>&lt;/body&gt;</code> tag.</p>
+    <textarea id="snippet-text-area" readonly style="width: 100%; height: 350px; font-family: monospace; white-space: pre; border: 1px solid #ccc; padding: 10px; box-sizing: border-box;">{{ snippet_code }}</textarea>
+    <button onclick="copySnippet()" class="btn btn-sm btn-info mt-2">Copy Snippet</button>
+    <br><br>
+    <a href="{{ url_for('hellobar.list_hellobars') }}" class="btn btn-secondary">Back to Hello Bars</a>
+    <hr>
+    <h3>Live Preview (Conceptual)</h3>
+    <p><small>This preview attempts to simulate the Hello Bar. Actual appearance depends on the target site's CSS and JS environment.</small></p>
+    <div id="preview-frame-container" style="border: 2px solid #007bff; margin-top:10px; min-height: 200px; resize: vertical; overflow: auto; padding: 10px; background-color: #f0f8ff;">
+        <h4>Simulated Website Content Area</h4>
+        <p>This is some placeholder content for the website.</p>
+        <p>The Hello Bar should appear at the top or bottom of this blue-bordered box.</p>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+        <div id="hellobar-preview-mount-point"></div>
+    </div>
+
+    <script type="text/javascript">
+        function copySnippet() {
+            var textArea = document.getElementById("snippet-text-area");
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                alert('Snippet copied to clipboard!');
+            } catch (err) {
+                alert('Failed to copy snippet. Please copy manually.');
+            }
+        }
+
+        (function() {
+            var mountPoint = document.getElementById('hellobar-preview-mount-point');
+            var snippetCode = document.getElementById("snippet-text-area").value;
+
+            // Isolate the IIFE
+            var iifeMatch = snippetCode.match(/\((function\s*\([^)]*\)\s*\{[\s\S]*?\})\s*\)\s*\(\s*\);/);
+            if (!iifeMatch || !iifeMatch[1]) {
+                console.error("Could not extract IIFE from snippet for preview.");
+                mountPoint.innerHTML = "<p style='color:red;'>Error: Could not parse snippet for preview.</p>";
+                return;
+            }
+            var iifeContent = iifeMatch[1];
+
+            // Modify the script to append to mountPoint instead of document.body
+            // And to avoid altering mountPoint's parent padding.
+            var modifiedIIFE = iifeContent.replace(/document\.body\.appendChild\s*\(\s*bar\s*\)\s*;/g, 'mountPoint.appendChild(bar);');
+            modifiedIIFE = modifiedIIFE.replace(/document\.body\.style\.paddingTop\s*=[^;]+;/g, '');
+
+            // Create a new script element to run the modified IIFE
+            var script = document.createElement('script');
+            script.type = 'text/javascript';
+            // Pass mountPoint to the IIFE if it's adapted to take it as a parameter
+            // For now, assumes 'mountPoint' will be in its scope or it uses a fixed ID for mounting.
+            // The current snippet directly appends to document.body.
+            // We need to ensure 'bar' is appended to 'mountPoint' for preview.
+            // The replacement above tries to do this.
+
+            // Reconstruct the IIFE for execution
+            var scriptToRun = '(' + modifiedIIFE + ')();';
+
+            try {
+                // This is a bit of a hack. A proper sandbox (iframe) is better for previews.
+                // We are defining 'mountPoint' in this scope, hoping the eval'd script can see it if it was global.
+                // Or, if the script is self-contained and uses `document.getElementById` for its mount.
+                // The current generated snippet uses `document.body.appendChild(bar)`.
+                // The `modifiedIIFE` changes this to `mountPoint.appendChild(bar)`.
+
+                // If `mountPoint.appendChild(bar)` is in the script, it needs `mountPoint` to be defined.
+                // Let's ensure it is by wrapping the execution.
+                var func = new Function('mountPoint', scriptToRun);
+                func(mountPoint);
+
+            } catch (e) {
+                console.error("Error executing snippet for preview:", e);
+                mountPoint.innerHTML = "<p style='color:red;'>Error previewing snippet: " + e.message + ". Check console.</p>";
+            }
+        })();
+    </script>
+{% endblock %}

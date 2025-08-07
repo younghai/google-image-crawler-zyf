@@ -1,0 +1,45 @@
+{% extends "layouts/base.html" %}
+{% block content %}
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h2>My Popups</h2>
+        <a href="{{ url_for('popup.create_popup') }}" class="btn btn-primary">Create New Popup</a>
+    </div>
+    {% if popups %}
+        <table class="table mt-4">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Type</th>
+                    <th>Trigger</th>
+                    <th>Active</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for popup_campaign in popups %}
+                <tr>
+                    <td>{{ popup_campaign.name }}</td>
+                    {% set settings = json.loads(popup_campaign.settings) if popup_campaign.settings else {} %}
+                    <td>{{ settings.get('popup_type', 'N/A').replace('_', ' ')|title }}</td>
+                    <td>{{ settings.get('trigger_type', 'N/A').replace('_', ' ')|title }}
+                        {% if settings.get('trigger_type') == 'on_load' %}
+                        (Delay: {{ settings.get('trigger_delay', 0) }}s)
+                        {% endif %}
+                    </td>
+                    <td><span class="{{ 'text-success' if popup_campaign.is_active else 'text-danger' }}">{{ 'Yes' if popup_campaign.is_active else 'No' }}</span></td>
+                    <td>
+                        <a href="{{ url_for('popup.edit_popup', campaign_id=popup_campaign.id) }}" class="btn btn-sm btn-outline-primary">Edit</a>
+                        <form action="{{ url_for('popup.delete_popup', campaign_id=popup_campaign.id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure?');">
+                            <input type="submit" value="Delete" class="btn btn-sm btn-outline-danger">
+                        </form>
+                        <a href="{{ url_for('popup.get_snippet', campaign_id=popup_campaign.id) }}" class="btn btn-sm btn-outline-info" target="_blank">Get Snippet</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No Popup campaigns yet. <a href="{{ url_for('popup.create_popup') }}">Create one!</a></p>
+    {% endif %}
+    <p style="margin-top: 20px;"><a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary">Back to Dashboard</a></p>
+{% endblock %}

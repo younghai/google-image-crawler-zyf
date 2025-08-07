@@ -1,0 +1,12 @@
+# Python
+*.pyc
+__pycache__/
+venv/
+*.db
+instance/
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+*.sqlite3

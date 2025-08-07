@@ -1,0 +1,43 @@
+{% extends "layouts/base.html" %}
+{% block content %}
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h2>My Banners</h2>
+        <a href="{{ url_for('banner.create_banner') }}" class="btn btn-primary">Create New Banner</a>
+    </div>
+    {% if banners %}
+        <table class="table mt-4">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Image Preview</th>
+                    <th>Type/Position</th>
+                    <th>Active</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for banner_campaign in banners %}
+                <tr>
+                    <td>{{ banner_campaign.name }}</td>
+                    <td>
+                        {% set settings = json.loads(banner_campaign.settings) if banner_campaign.settings else {} %}
+                        <img src="{{ settings.get('image_url', '#') }}" alt="{{ banner_campaign.name }}" style="width: 100px; height: auto; border:1px solid #ccc;">
+                    </td>
+                    <td>{{ settings.get('position_type', 'N/A').replace('_', ' ')|title }}</td>
+                    <td><span class="{{ 'text-success' if banner_campaign.is_active else 'text-danger' }}">{{ 'Yes' if banner_campaign.is_active else 'No' }}</span></td>
+                    <td>
+                        <a href="{{ url_for('banner.edit_banner', campaign_id=banner_campaign.id) }}" class="btn btn-sm btn-outline-primary">Edit</a>
+                        <form action="{{ url_for('banner.delete_banner', campaign_id=banner_campaign.id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this banner campaign?');">
+                            <input type="submit" value="Delete" class="btn btn-sm btn-outline-danger">
+                        </form>
+                        <a href="{{ url_for('banner.get_snippet', campaign_id=banner_campaign.id) }}" class="btn btn-sm btn-outline-info" target="_blank">Get Snippet</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>You haven't created any Banner campaigns yet. <a href="{{ url_for('banner.create_banner') }}">Create one now!</a></p>
+    {% endif %}
+    <p style="margin-top: 20px;"><a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary">Back to Dashboard</a></p>
+{% endblock %}

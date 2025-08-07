@@ -1,0 +1,82 @@
+{% extends "layouts/base.html" %}
+{% block content %}
+    <h3>{{ legend }}</h3>
+    <form method="POST" action="" novalidate>
+        {{ form.hidden_tag() }}
+        {# Hidden field to pass coupon_id for edit validation context #}
+        {% if coupon_id_hidden %}
+            <input type="hidden" name="coupon_id_hidden" value="{{ coupon_id_hidden }}">
+        {% endif %}
+
+        <fieldset class="form-group">
+            <legend class="border-bottom mb-4">Coupon Details</legend>
+            <div class="form-group">
+                {{ form.code.label(class="form-control-label") }}
+                {{ form.code(class="form-control") }}
+                <small class="form-text text-muted">{{ form.code.description }}</small>
+                {% if form.code.errors %}<div class="invalid-feedback d-block">{% for error in form.code.errors %}<span>{{ error }}</span>{% endfor %}</div>{% endif %}
+            </div>
+             <div class="form-check">
+                {{ form.generate_code_checkbox(class="form-check-input") }}
+                {{ form.generate_code_checkbox.label(class="form-check-label") }}
+            </div>
+
+            <div class="form-group mt-3">
+                {{ form.description.label(class="form-control-label") }}
+                {{ form.description(class="form-control") }}
+                {% if form.description.errors %}<div class="invalid-feedback d-block">{% for error in form.description.errors %}<span>{{ error }}</span>{% endfor %}</div>{% endif %}
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        {{ form.discount_type.label(class="form-control-label") }}
+                        {{ form.discount_type(class="form-control") }}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        {{ form.discount_value.label(class="form-control-label") }}
+                        {{ form.discount_value(class="form-control", type="number", step="0.01") }}
+                        {% if form.discount_value.errors %}<div class="invalid-feedback d-block">{% for error in form.discount_value.errors %}<span>{{ error }}</span>{% endfor %}</div>{% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <h5 class="mt-4 border-bottom">Validity & Usage</h5>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        {{ form.valid_from.label(class="form-control-label") }}
+                        {{ form.valid_from(class="form-control", placeholder="YYYY-MM-DD HH:MM:SS") }}
+                         <small class="form-text text-muted">Leave blank for no start date limit.</small>
+                        {% if form.valid_from.errors %}<div class="invalid-feedback d-block">{% for error in form.valid_from.errors %}<span>{{ error }}</span>{% endfor %}</div>{% endif %}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        {{ form.valid_to.label(class="form-control-label") }}
+                        {{ form.valid_to(class="form-control", placeholder="YYYY-MM-DD HH:MM:SS") }}
+                        <small class="form-text text-muted">Leave blank for no expiry date.</small>
+                        {% if form.valid_to.errors %}<div class="invalid-feedback d-block">{% for error in form.valid_to.errors %}<span>{{ error }}</span>{% endfor %}</div>{% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                {{ form.max_uses.label(class="form-control-label") }}
+                {{ form.max_uses(class="form-control", type="number", min="0") }}
+                <small class="form-text text-muted">Set to 0 or leave blank for unlimited uses.</small>
+                {% if form.max_uses.errors %}<div class="invalid-feedback d-block">{% for error in form.max_uses.errors %}<span>{{ error }}</span>{% endfor %}</div>{% endif %}
+            </div>
+
+             <div class="form-check mt-3">
+                {{ form.is_active(class="form-check-input") }}
+                {{ form.is_active.label(class="form-check-label") }}
+            </div>
+        </fieldset>
+        <div class="form-group mt-4">
+            {{ form.submit(class="btn btn-primary") }}
+            <a href="{{ url_for('coupon.list_coupons') }}" class="btn btn-secondary ml-2">Cancel</a>
+        </div>
+    </form>
+{% endblock %}
